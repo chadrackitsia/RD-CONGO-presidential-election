@@ -10,6 +10,9 @@ const cors = require("cors");
 
 const app = express();
 
+const poll = require("./routes/poll");
+
+
 // Configuration du dossier ** public **
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -19,6 +22,11 @@ app.use(bodyParser.urlencoded({extended:false}));
 
 // Activation du CORD
 app.use(cors());
+
+// ROUTES POLL
+app.use('/poll', poll);
+
+
 
 
 /** Congifuration SERVEUR PORT */
