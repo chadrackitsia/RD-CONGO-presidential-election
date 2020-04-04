@@ -1,6 +1,11 @@
+/****
+ * REQUIRE MODULES
+ */
 const express = require("express");
-
 const router = express.Router();
+const mongoose = require('mongoose');
+
+const Vote = require('../models/Vote'); // Require vote schema
 
 const Pusher = require("pusher"); // Require Pusher module
 
@@ -14,16 +19,25 @@ var pusher = new Pusher({
 });
 
 router.get("/", (req, res) => {
-  res.send("POLL");
+  Vote.find().then(votes => res.json({success: true, votes: votes}));
 });
 
 router.post("/", (req, res) => {
-  pusher.trigger('candidat-poll', 'candidat-vote', {
-    points : 1,
-    candidat: req.body.candidat
-  });
+  const newVote = {
+    candidat : req.body.candidat,
+    points : 1
+  }
 
-  return res.json({success: true, message: "Merci pour votre votre"}); // Message d'envoi une fois le vote effectué
+  // Instance model constructor
+  new Vote(newVote).save().then(vote => {
+    pusher.trigger('candidat-poll', 'candidat-vote', {
+      points : parseInt(vote.points),
+      candidat: vote.candidat
+    });
+  
+    return res.json({success: true, message: "Merci pour votre votre"}); // Message d'envoi une fois le vote effectué
+  });
+ 
 });
 
 
